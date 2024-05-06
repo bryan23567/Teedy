@@ -8,17 +8,17 @@ pipeline {
         }
         stage('Doc') {
             steps {
-                sh 'mvn javadoc:jar'
+                bat 'mvn javadoc:jar'
             }
         }
         stage('pmd') {
             steps {
-                sh 'mvn pmd:pmd'
+                bat 'mvn pmd:pmd'
             }
         }
         stage('Test') {
             steps {
-                sh 'mvn test'
+                bat 'mvn test'
             }
             post {
                 always {

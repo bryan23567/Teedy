@@ -1,38 +1,51 @@
+// pipeline {
+//     agent any
+//     stages{
+//         stage('Package') {
+//             steps {
+//                 bat 'mvn -B -DskipTests clean package'
+//             }
+//         }
+//         // Building Docker images
+//         stage('Building image') {
+//             steps{
+//                 script {
+//                     docker.build("nopyesok/practicedocker:firstversion")
+//                 }
+//             }
+//         }
+//         // Uploading Docker images into Docker Hub
+//         stage('Upload image') {
+//             steps{
+//                 script {
+//                     docker.withRegistry('https://registry.hub.docker.com', '12112230') {
+//                         docker.image("nopyesok/practicedocker:firstversion").push()
+//                     }
+//                 }
+//             }
+//         }
+//         //Running Docker container
+//         stage('Run containers'){
+//             steps{
+//                 script{
+//                     docker.run("nopyesok/practicedocker:firstversion")
+//                 }
+//             }
+//         }
+//     }
+// }
 pipeline {
     agent any
     stages {
         stage('Build') {
             steps {
-                bat 'mvn -B -DskipTests clean package'
+            sh 'mvn -B -DskipTests clean package'
             }
-        }
-        stage('Doc') {
+            }
+            stage('K8s') {
             steps {
-                bat 'mvn javadoc:jar'
+            sh 'kubectl set image deployments/hello-node container-name=image-id'
             }
-        }
-        stage('pmd') {
-            steps {
-                bat 'mvn pmd:pmd'
-            }
-        }
-        stage('Test') {
-            steps {
-                bat 'mvn test --fail-never'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-    }
-    post {
-        always {
-            archiveArtifacts artifacts: '**/target/site/**', fingerprint: true
-            archiveArtifacts artifacts: '**/target/**/*.jar', fingerprint: true
-            archiveArtifacts artifacts: '**/target/**/*.war', fingerprint: true
-            archiveArtifacts artifacts: '**/target/site/apidocs/**', fingerprint: true
         }
     }
 }
